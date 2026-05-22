@@ -127,12 +127,30 @@ class CustomerController extends Controller
             ], 422);
         }
 
-        $customerData->delete();
+        $customerData->delete($id);
 
         return response()->json([
             'success' => true,
             'message' => 'Customer deleted successfully',
             'data' => null,
+        ]);
+    }
+
+    public function changeStatus(Request $request, int $id): JsonResponse
+    {
+        $customer = Customer::query()->find($id);
+
+        if (!$customer) {
+            return response()->json(['success' => false, 'message' => 'Customer not found'], 404);
+        }
+
+        $request->validate(['status' => ['required', 'boolean']]);
+        $customer->update(['status' => $request->boolean('status')]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Customer status changed successfully',
+            'data' => $customer,
         ]);
     }
 }

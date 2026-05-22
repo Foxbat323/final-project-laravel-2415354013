@@ -10,6 +10,14 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+
+Route::patch('services/{id}/change-status', [ServiceController::class, 'changeStatus']);
+Route::patch('customers/{id}/change-status', [CustomerController::class, 'changeStatus']);
+Route::patch('subscriptions/{id}/change-status', [SubscriptionController::class, 'changeStatus']);
+
+
 Route::apiResource('services', ServiceController::class);
 Route::apiResource('customers', CustomerController::class);
-Route::apiResource('subscriptions', SubscriptionController::class);
+
+
+Route::apiResource('subscriptions', SubscriptionController::class)->except(['update', 'destroy']);

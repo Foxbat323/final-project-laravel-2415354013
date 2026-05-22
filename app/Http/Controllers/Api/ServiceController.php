@@ -10,16 +10,22 @@ use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $services = Service::latest()->get();
+        $query = Service::query();
+
+        // Kalau ada parameter ?status=1 atau ?status=0
+        if ($request->has('status')) {
+            $query->where('status', $request->boolean('status'));
+        }
+
+        $services = $query->latest()->get();
         return response()->json([
             'success' => true,
             'message' => 'Services retrieved successfully',
             'data' => $services,
         ]);
     }
-
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -112,6 +118,23 @@ class ServiceController extends Controller
             'success' => true,
             'message' => 'Service deleted successfully',
             'data' => null,
+        ]);
+    }
+    public function changeStatus(Request $request, int $id): JsonResponse
+    {
+        $service = Service::query()->find($id);
+
+        if (!$service) {
+            return response()->json(['success' => false, 'message' => 'Service not found'], 404);
+        }
+
+        $request->validate(['status' => ['required', 'boolean']]);
+        $service->update(['status' => $request->boolean('status')]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Service status changed successfully',
+            'data' => $service,
         ]);
     }
 }

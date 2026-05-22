@@ -10,9 +10,16 @@ use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $subscriptions = Subscription::with(['customer', 'service'])->latest()->get();
+        $query = Subscription::with(['customer', 'service']);
+
+        // Kalau ada parameter ?status=active/inactive/dsb
+        if ($request->has('status')) {
+            $query->where('status', $request->query('status'));
+        }
+
+        $subscriptions = $query->latest()->get();
         
         return response()->json([
             'success' => true,
@@ -114,6 +121,35 @@ class SubscriptionController extends Controller
             'success' => true,
             'message' => 'Subscription deleted successfully',
             'data' => null,
+        ]);
+    }
+
+    public function changeStatus(Request $request, int $id): JsonResponse
+    {
+        $subscription = Subscription::query()->find($id);
+
+        if (!$subscription) {
+            return response()->json(['success' => false, 'message' => 'Subscription not found'], 404);
+        }
+
+        // Validasi dismantle dari kodingan kita sebelumnya dipindah ke sini!
+        if ($subscription->status === 'dismantle') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot change status because it is already dismantled'
+            ], 422); 
+        }
+
+        $request->validate([
+            'status' => ['required', 'string', 'in:active,inactive,trial,isolir,dismantle']
+        ]);
+
+        $subscription->update(['status' => $request->status]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Subscription status changed successfully',
+            'data' => $subscription,
         ]);
     }
 }
