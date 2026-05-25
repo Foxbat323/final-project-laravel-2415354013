@@ -132,7 +132,7 @@ class SubscriptionController extends Controller
             return response()->json(['success' => false, 'message' => 'Subscription not found'], 404);
         }
 
-        // Validasi dismantle dari kodingan kita sebelumnya dipindah ke sini!
+        
         if ($subscription->status === 'dismantle') {
             return response()->json([
                 'success' => false,

@@ -10,14 +10,13 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+// Prefix untuk membedakan dengan web routes
+Route::prefix('v1')->name('api.')->group(function () {
+    Route::patch('services/{id}/change-status', [ServiceController::class, 'changeStatus']);
+    Route::patch('customers/{id}/change-status', [CustomerController::class, 'changeStatus']);
+    Route::patch('subscriptions/{id}/change-status', [SubscriptionController::class, 'changeStatus']);
 
-Route::patch('services/{id}/change-status', [ServiceController::class, 'changeStatus']);
-Route::patch('customers/{id}/change-status', [CustomerController::class, 'changeStatus']);
-Route::patch('subscriptions/{id}/change-status', [SubscriptionController::class, 'changeStatus']);
-
-
-Route::apiResource('services', ServiceController::class);
-Route::apiResource('customers', CustomerController::class);
-
-
-Route::apiResource('subscriptions', SubscriptionController::class)->except(['update', 'destroy']);
+    Route::apiResource('services', ServiceController::class);
+    Route::apiResource('customers', CustomerController::class);
+    Route::apiResource('subscriptions', SubscriptionController::class)->except(['update', 'destroy']);
+});

@@ -9,8 +9,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Subscription extends Model
 {
     protected $fillable = [
-        'customer_id', 'service_id', 'start_date', 'end_date', 'status'
+        'customer_id', 
+        'service_id', 
+        'start_date', 
+        'end_date', 
+        'status'
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'start_date' => 'datetime',
+            'end_date' => 'datetime',
+        ];
+    }
 
     public function customer(): BelongsTo
     {
